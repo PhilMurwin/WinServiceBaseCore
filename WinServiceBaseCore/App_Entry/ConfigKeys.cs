@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace WinServiceBaseCore.App_Entry
 {
@@ -10,9 +9,16 @@ namespace WinServiceBaseCore.App_Entry
         {
             get
             {
-                bool boolParse;
-                Boolean.TryParse( GetConfigKey( "BasicTimeLogger" ), out boolParse );
+                bool.TryParse( GetConfigKey( "BasicTimeLogger" ), out bool boolParse );
                 return boolParse;
+            }
+        }
+        public static int BasicTimeLoggerFrequency
+        {
+            get
+            {
+                int.TryParse( GetConfigKey( "BasicTimeLoggerFrequency" ), out int intParse );
+                return intParse;
             }
         }
         #endregion Basic Time Logger Settings
@@ -22,8 +28,7 @@ namespace WinServiceBaseCore.App_Entry
         {
             get
             {
-                bool boolParse;
-                Boolean.TryParse( GetConfigKey( "EmailTest" ), out boolParse );
+                bool.TryParse( GetConfigKey( "EmailTest" ), out bool boolParse );
                 return boolParse;
             }
         }

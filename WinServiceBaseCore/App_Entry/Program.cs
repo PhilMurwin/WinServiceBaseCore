@@ -1,33 +1,33 @@
 ﻿using Microsoft.Extensions.Hosting;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using WinServiceBaseCore.Framework.ServiceBase;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace WinServiceBaseCore.App_Entry
 {
-    class Program
+    public class Program
     {
-        static async System.Threading.Tasks.Task Main( string[] args )
+        // Initial article detailing setting up .net core services
+        // https://dotnetcoretutorials.com/2019/12/07/creating-windows-services-in-net-core-part-3-the-net-core-worker-way/
+        public static void Main( string[] args )
         {
-            var isService = !( Debugger.IsAttached || args.Contains( "--console" ) );
+            CreateHostBuilder( args ).Build().Run();
+        }
 
-            var host = new HostBuilder()
+        public static IHostBuilder CreateHostBuilder( string[] args )
+        {
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureServices( ( hostContext, services ) =>
                 {
                     ServiceConfig.RegisterServices( services );
                 } )
-                .UseConsoleLifetime();
-
-            if( isService )
-            {
-                await host.RunAsServiceAsync();
-            }
-            else
-            {
-                await host.RunConsoleAsync();
-            }
-
+                // Configure NLog Logging: https://github.com/NLog/NLog/wiki/Getting-started-with-.NET-Core-2---Console-application
+                .ConfigureLogging( logBuilder =>
+                {
+                    logBuilder.SetMinimumLevel( LogLevel.Trace );
+                    logBuilder.AddNLog( "NLog.config" )
+                        .AddFilter( "Microsoft", LogLevel.Warning );
+                })
+                .UseWindowsService();
         }
     }
 }

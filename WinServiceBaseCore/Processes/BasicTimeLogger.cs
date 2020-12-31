@@ -1,41 +1,32 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using WinServiceBaseCore.App_Entry;
-using WinServiceBaseCore.Framework;
+using WinServiceBaseCore.Infrastructure;
 
 namespace WinServiceBaseCore.Processes
 {
     /// <summary>
-    /// Creates a log entry once a minute
+    /// Creates a log entry
     /// Useful as a test of the service framework and basic layout of a process
     /// </summary>
-    public class BasicTimeLogger : ProcessBase
+    public class BasicTimeLogger : ProcessBase<BasicTimeLogger>
     {
-        public override string StopCode
+        public override string StopCode => "ExitLogger";
+
+        public override bool CanStartProcess => ConfigKeys.BasicTimeLogger;
+
+        public override int Frequency => ConfigKeys.BasicTimeLoggerFrequency;
+
+        public BasicTimeLogger( ILogger<BasicTimeLogger> logger ): base(logger)
         {
-            get { return "ExitLogger"; }
+
         }
 
-        public override bool CanStartProcess
-        {
-            get { return ConfigKeys.BasicTimeLogger; }
-        }
-
-        public override int Frequency
-        {
-            get
-            {
-                return 1;
-            }
-        }
-
-        /// <summary>
-        /// Send message to logger once a minute
-        /// </summary>
         public override void DoProcessWork()
         {
-            //Write current time to eventlog
-            var logMessage = string.Format( "The current time is: {0}.", DateTime.Now.ToString( "HH:mm:ss tt" ) );
-            ProcessLogger.Info( logMessage );
+            //Write current time to log
+            var logMessage = $"The current time is: {DateTime.Now:HH:mm:ss tt}.";
+            ProcessLogger.LogInformation( logMessage );
         }
     }
 }
