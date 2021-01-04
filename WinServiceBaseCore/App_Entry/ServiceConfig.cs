@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using WinServiceBaseCore.Processes;
+using System.Collections.Generic;
+using System.Reflection;
+using WinServiceBaseCore.Infrastructure;
 
 namespace WinServiceBaseCore.App_Entry
 {
@@ -9,19 +11,9 @@ namespace WinServiceBaseCore.App_Entry
         {
             // Might have useful code for dynamically registering hosted services
             // https://forums.asp.net/t/2164416.aspx?services+AddHostedService
-            // This link may be relavant to dynamically registering hosted services
-            //https://medium.com/swlh/creating-a-worker-service-in-asp-net-core-3-0-6af5dc780c80
 
-            // Register Services
-            if ( ConfigKeys.BasicTimeLogger )
-            {
-                services.AddHostedService<BasicTimeLogger>();
-            }
+            services.AddHostedServices( new List<Assembly> { Assembly.GetExecutingAssembly() } );
 
-            if ( ConfigKeys.EmailTest )
-            {
-                services.AddHostedService<EmailTest>();
-            }
         }
     }
 }

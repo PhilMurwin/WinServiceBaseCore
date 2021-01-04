@@ -1,15 +1,9 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace WinServiceBaseCore.Infrastructure
 {
-    public interface IProcessBase<T> : IHostedService where T: IProcessBase<T>
+    public interface IProcessBase : IHostedService
     {
-        /// <summary>
-        /// Provides access to a logger for the process
-        /// </summary>
-        ILogger<T> ProcessLogger { get; set; }
-
         string StopCode { get; }
 
         string ExitInstructions { get; }

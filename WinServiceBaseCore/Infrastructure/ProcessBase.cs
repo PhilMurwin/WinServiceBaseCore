@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,15 +9,20 @@ namespace WinServiceBaseCore.Infrastructure
     /// <summary>
     /// Base class for creating processes for the service to execute
     /// </summary>
-    public abstract class ProcessBase<T> : BackgroundService, IProcessBase<T> where T: ProcessBase<T>
+    public abstract class ProcessBase : BackgroundService, IProcessBase
     {
         protected const int DefaultSleepSeconds = 30 * 1000;
         protected const int MillisecondsInMinute = 60 * 1000;
 
+        private ILogger _logger;
+
         /// <summary>
         /// Provides access to a logger for the process
         /// </summary>
-        public ILogger<T> ProcessLogger { get; set; }
+        public ILogger ProcessLogger
+        {
+            get { return _logger ?? (_logger = NLog.LogManager.GetCurrentClassLogger()); }
+        }
 
         /// <summary>
         /// Returns the name of the current process for use in error messages etc...
@@ -57,11 +62,6 @@ namespace WinServiceBaseCore.Infrastructure
         /// </summary>
         protected DateTime LastRunTime { get; set; } = DateTime.Now;
 
-        public ProcessBase( ILogger<T> logger )
-        {
-            ProcessLogger = logger;
-        }
-
         /// <summary>
         /// Default Process Loop
         /// <para>Sleeps the thread/process for some amount of time after each run of DoProcessWork.</para>
@@ -78,7 +78,7 @@ namespace WinServiceBaseCore.Infrastructure
             {
                 if ( DateTime.Now >= LastRunTime.AddMinutes( Frequency ) )
                 {
-                    ProcessLogger.LogDebug( "Calling DoProcessWork for process [{0}].", ProcessName );
+                    ProcessLogger.Debug( "Calling DoProcessWork for process [{0}].", ProcessName );
 
                     DoProcessWork();
 

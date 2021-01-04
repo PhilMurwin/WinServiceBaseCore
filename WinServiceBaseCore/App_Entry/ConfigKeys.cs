@@ -32,6 +32,14 @@ namespace WinServiceBaseCore.App_Entry
                 return boolParse;
             }
         }
+        public static int EmailTestFrequency
+        {
+            get
+            {
+                int.TryParse( GetConfigKey( "EmailTestFrequency" ), out int intParse );
+                return intParse;
+            }
+        }
         #endregion Email Test Settings
 
         /// <summary>

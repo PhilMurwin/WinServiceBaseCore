@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 
 namespace WinServiceBaseCore.App_Entry
 {
@@ -21,12 +19,12 @@ namespace WinServiceBaseCore.App_Entry
                     ServiceConfig.RegisterServices( services );
                 } )
                 // Configure NLog Logging: https://github.com/NLog/NLog/wiki/Getting-started-with-.NET-Core-2---Console-application
-                .ConfigureLogging( logBuilder =>
-                {
-                    logBuilder.SetMinimumLevel( LogLevel.Trace );
-                    logBuilder.AddNLog( "NLog.config" )
-                        .AddFilter( "Microsoft", LogLevel.Warning );
-                })
+                //.ConfigureLogging( logBuilder =>
+                //{
+                //    logBuilder.SetMinimumLevel( LogLevel.Trace );
+                //    logBuilder.AddNLog( "NLog.config" )
+                //        .AddFilter( "Microsoft", LogLevel.Warning );
+                //})
                 .UseWindowsService();
         }
     }
