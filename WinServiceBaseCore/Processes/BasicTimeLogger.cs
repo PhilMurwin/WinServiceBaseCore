@@ -1,5 +1,5 @@
 ﻿using System;
-using WinServiceBaseCore.App_Entry;
+using WinServiceBaseCore.App;
 using WinServiceBaseCore.Infrastructure;
 
 namespace WinServiceBaseCore.Processes
