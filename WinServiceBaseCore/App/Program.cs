@@ -1,96 +1,84 @@
 ﻿using CommandLine;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog;
 using NLog.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using WinServiceBaseCore.Infrastructure;
 
 namespace WinServiceBaseCore.App
 {
-    public class Program
+    internal class Program
     {
-        private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
-
-        // Initial article detailing setting up .net core services
-        // https://dotnetcoretutorials.com/2019/12/07/creating-windows-services-in-net-core-part-3-the-net-core-worker-way/
+        private static ILogger<Program> _logger;
         public static void Main( string[] args )
         {
             try
             {
+                var callerIsMain = true;
+
+                SetLogger();
+
                 // Parse command line options
                 var cliArgs = CommandLine.Parser.Default.ParseArguments<Options>(args)
-                    .WithParsed(opts => RunWithOptions(opts))
-                    .WithNotParsed(HandleParseError);
+                    .WithParsed(opts => CommandLineHandlers.RunWithDefaultOptions(opts, callerIsMain))
+                    .WithNotParsed(errors => CommandLineHandlers.HandleParseError(errors));
             }
             catch (Exception err)
             {
                 // NLog: catch any exception and log it.
-                Logger.Error(err, "Stopped program because of exception.");
-            }
-            finally
-            {
-                // Ensure to flush and stop internal timers/threads before application-exit (Avoid seg fault on Linux)
-                LogManager.Shutdown();
+                _logger.LogDebug($"Could not startup due to an exception: {err.Message}");
             }
         }
 
-        private static void HandleParseError(IEnumerable<Error> errs)
+        private static void SetLogger()
         {
-            foreach (var err in errs)
+            using var loggerFactory = LoggerFactory.Create(builder =>
             {
-                Logger.Debug("An error occurred while parsing command line arguments: " + err.Tag);
-            }
+                builder.ClearProviders();
+                builder.AddNLog(); // Use NLog as the logging provider
+            });
+            _logger = loggerFactory.CreateLogger<Program>();
         }
 
-        private static void RunWithOptions(Options options)
+        public static void StartWinService()
         {
-            // Act on the CLI options
-            // -w --WriteFile
-            if (options.WriteToFile)
-            {
-                Logger.Info("CLI Option: WriteToFile");
-                OptionProcessing.WriteToFile();
-            }
-            // No recognized options passed
-            else
-            {
-                Logger.Info("*** Starting Service Base Core ***");
-
-                StartWinService();
-            }
+            BuildHost().Run();
         }
 
-        private static void StartWinService()
+        public static IHost BuildHost(string[] args = null)
         {
-            CreateHostBuilder().Build().Run();
+            return CreateHostBuilder().Build();
         }
 
         public static IHostBuilder CreateHostBuilder( string[] args = null)
         {
             return Host.CreateDefaultBuilder(args)
-                //.ConfigureAppConfiguration( app => 
-                //{
-                //    app.AddJsonFile("appsettings.json");
-                //})
-                .ConfigureServices( ( hostContext, services ) =>
+                .ConfigureAppConfiguration( (context, config) => 
                 {
-                    // Configure NLog Logging: https://github.com/NLog/NLog/wiki/Getting-started-with-.NET-Core-2---Console-application
-                    services.AddLogging(loggingBuilder =>
+                    var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+
+                    config.SetBasePath(Utils.AssemblyDirectory)
+                        .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"appSettings.{environment}.json", optional: true, reloadOnChange: true);
+                })
+                .ConfigureServices( ( context, services ) =>
+                {
+                    // Register NLog as the logging provider
+                    services.AddLogging(builder =>
                     {
-                        loggingBuilder.ClearProviders();
-                        loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                        loggingBuilder.AddNLog();
+                        builder.ClearProviders(); // Optionally clear default providers
+                        builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                        builder.AddNLog("NLog.config"); // Add NLog as the logging provider
                     });
 
-                    services.AddHostedServices();
+                    // Dynamically register app settings
+                    services.RegisterAllAppSettings(context.Configuration);
+
+                    // Dynamically discover and register all ProcessBase implementations
+                    services.RegisterBackgroundProcesses(context.Configuration);
                 })
-                .UseWindowsService(options =>
-                {
-                    options.ServiceName = "Win Service Base";
-                });
+                .UseWindowsService();
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using WinServiceBaseCore.Models;
+using System.Reflection;
+using WinServiceBaseCore.Models.AppSettings;
 
 namespace WinServiceBaseCore.App
 {
@@ -16,6 +13,17 @@ namespace WinServiceBaseCore.App
 
     public static class Utils
     {
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string location = Assembly.GetExecutingAssembly().Location;
+                UriBuilder uri = new UriBuilder(location);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+
         /// <summary>
         /// Send an email using Mail Kit
         /// </summary>

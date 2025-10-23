@@ -3,14 +3,24 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <AssemblyVersion>1.25.10.23</AssemblyVersion>
-    <FileVersion>1.25.10.23</FileVersion>
+	<ImplicitUsings>enable</ImplicitUsings>
+    <Version>1.25.10.23</Version>
+	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
@@ -21,7 +31,6 @@
     <PackageReference Include="NLog" Version="6.0.5" />
     <PackageReference Include="NLog.Extensions.Logging" Version="6.0.5" />
     <PackageReference Include="NLog.Targets.Mail" Version="6.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.10" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.10" />
   </ItemGroup>
 
@@ -33,9 +42,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Batch Files\WriteToFile.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="C:\Users\pmurwin\.nuget\packages\nlog.config\4.5.10\contentFiles\any\any\NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="NLog.config">

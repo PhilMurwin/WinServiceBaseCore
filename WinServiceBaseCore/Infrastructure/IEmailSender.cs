@@ -1,5 +1,5 @@
 ﻿using WinServiceBaseCore.App;
-using WinServiceBaseCore.Models;
+using WinServiceBaseCore.Models.AppSettings;
 
 namespace WinServiceBaseCore.Infrastructure
 {

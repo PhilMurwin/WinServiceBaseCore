@@ -1,6 +1,8 @@
-﻿namespace WinServiceBaseCore.Models
+﻿using WinServiceBaseCore.Infrastructure;
+
+namespace WinServiceBaseCore.Models.AppSettings
 {
-    public class SMTPSettings
+    public class SMTPSettings : IAppSettings
     {
         public static string SectionName => "SMTP";
 
