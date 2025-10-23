@@ -57,7 +57,7 @@ namespace WinServiceBaseCore.App
             // No recognized options passed
             else
             {
-                Logger.Info("*** Starting PolarisAutomation ***");
+                Logger.Info("*** Starting Service Base Core ***");
 
                 StartWinService();
             }

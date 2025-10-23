@@ -1,6 +1,7 @@
 ﻿using System;
 using WinServiceBaseCore.App;
 using WinServiceBaseCore.Infrastructure;
+using WinServiceBaseCore.Models;
 
 namespace WinServiceBaseCore.Processes
 {
@@ -12,10 +13,34 @@ namespace WinServiceBaseCore.Processes
 
         public override int Frequency => ConfigKeys.EmailTestFrequency;
 
+        private NLog.Logger logger;
+
+        public EmailTest() : base()
+        {
+            logger = NLog.LogManager.GetCurrentClassLogger();
+        }
+
         public override void DoProcessWork()
         {
-            var logMessage = $"The current time is: {DateTime.Now:HH:mm:ss tt}.";
-            ProcessLogger.Info( logMessage );
+            var logMessage = $"{ProcessName}: The current time is: {DateTime.Now:HH:mm:ss tt}.";
+            logger.Info(logMessage);
+            
+            //SendTestEmail(logMessage);
+        }
+
+        public void SendTestEmail(string body)
+        {
+            var smtpSettings = new SMTPSettings
+            {
+                Host = ConfigKeys.SMTPHost,
+                Port = ConfigKeys.SMTPPort,
+                Username = ConfigKeys.SMTPUser,
+                Password = ConfigKeys.SMTPPass,
+                SenderEmail = ConfigKeys.SMTPUser,
+                SenderName = "Service Test"
+            };
+
+            Utils.SendEmail(smtpSettings, ConfigKeys.EmailTestMailTo, "Email Test", body);
         }
     }
 }

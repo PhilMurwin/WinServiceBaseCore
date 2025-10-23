@@ -4,6 +4,13 @@ namespace WinServiceBaseCore.App
 {
     public static class ConfigKeys
     {
+        #region SMTP Settings
+        public static string SMTPHost => GetConfigKey("SMTPHost");
+        public static int SMTPPort => int.Parse(GetConfigKey("SMTPPort"));
+        public static string SMTPUser => GetConfigKey("SMTPUser");
+        public static string SMTPPass => GetConfigKey("SMTPPass");
+        #endregion SMTP Settings
+
         #region Basic Time Logger Settings
         public static bool BasicTimeLogger => bool.Parse(GetConfigKey("BasicTimeLogger"));
 
@@ -12,8 +19,8 @@ namespace WinServiceBaseCore.App
 
         #region Email Test Settings
         public static bool EmailTest => bool.Parse(GetConfigKey("EmailTest"));
-
         public static int EmailTestFrequency => int.Parse(GetConfigKey("EmailTestFrequency"));
+        public static string EmailTestMailTo => GetConfigKey("EmailTestMailTo");
         #endregion Email Test Settings
 
         #region WriteToFile
@@ -24,13 +31,11 @@ namespace WinServiceBaseCore.App
 
         /// <summary>
         /// Helper method for getting config keys
-        /// <para>Refreshes the appSettings section of the config before retrieving a setting</para>
         /// </summary>
         /// <param name="setting"></param>
         /// <returns></returns>
         public static string GetConfigKey( string setting )
         {
-            ConfigurationManager.RefreshSection( "appSettings" );
             return ConfigurationManager.AppSettings[setting];
         }
     }
